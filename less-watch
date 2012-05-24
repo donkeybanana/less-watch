@@ -1,0 +1,14 @@
+#!/bin/bash
+# requires notify-tools, lessc
+if [ ! $1 ] || [ ! -d $1 ]; then
+  echo "Usage: $(basename $0) /path/to/less/dir"
+  exit -1
+fi
+
+while read line; do
+  filename="$(basename $line)"
+  if [ "${filename##*.}" == "less" ]; then
+    path="$(dirname $line)"
+    lessc "${line}" > "${path}/`echo ${filename} | cut -f1 -d. -`.css";
+  fi;
+done < <(inotifywait -r -q -m -e MODIFY --format '%w%f' $1);
